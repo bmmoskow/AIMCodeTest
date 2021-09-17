@@ -3,20 +3,15 @@ package ben.aimcodetest.apitests;
 import ben.aimcodetest.apitests.Models.Item;
 import ben.aimcodetest.apitests.Models.ItemBase;
 import ben.aimcodetest.apitests.Models.SkuMetadata;
-
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static io.restassured.RestAssured.*;
+import io.restassured.response.*;
+import io.restassured.specification.*;
+import java.time.Instant;
+import java.util.UUID;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import static io.restassured.RestAssured.*;
-
-import io.restassured.specification.*;
-import io.restassured.response.*;
-import com.fasterxml.jackson.core.*;
-
-import java.time.Instant;
-import java.util.Date;
-import java.util.UUID;
 
 public class APITests {
     private static ObjectMapper objectMapper = new ObjectMapper();
@@ -72,7 +67,7 @@ public class APITests {
     public void deleteUnknownItemTest() {
         Response deleteResponse = httpRequest.delete("/" + UUID.randomUUID().toString());
         int statusCode = deleteResponse.getStatusCode();
-        Assert.assertEquals(statusCode, 404);
+        Assert.assertEquals(statusCode, 404, "should get 404 if the item to be deleted doesn't exist");
     }
 
     @Test()
@@ -108,7 +103,7 @@ public class APITests {
     private Item[] executeGetAllTest() throws JsonProcessingException {
         Response response = httpRequest.get("");
         int statusCode = response.getStatusCode();
-        Assert.assertEquals(statusCode, 200);
+        Assert.assertEquals(statusCode, 200, "expect 200 result");
         String body = response.getBody().asString();
         return objectMapper.readValue(body, Item[].class);
     }
@@ -116,11 +111,11 @@ public class APITests {
     private Item executeGetTest(Item imputItem) throws JsonProcessingException {
         Response getResponse = httpRequest.get("/" + imputItem.sku);
         int statusCode = getResponse.getStatusCode();
-        Assert.assertEquals(statusCode, 200);
+        Assert.assertEquals(statusCode, 200, "expect 200 result");
         String getResponseBody = getResponse.getBody().asString();
         SkuMetadata getResponseSku = objectMapper.readValue(getResponseBody, SkuMetadata.class);
-        Assert.assertEquals(getResponseSku.ResponseMetadata.HTTPStatusCode, statusCode);
-        Assert.assertEquals(getResponseSku.ResponseMetadata.HTTPHeaders.content_type, "application/x-amz-json-1.0");
+        Assert.assertEquals(getResponseSku.ResponseMetadata.HTTPStatusCode, statusCode, "inconsistent status code");
+        Assert.assertEquals(getResponseSku.ResponseMetadata.HTTPHeaders.content_type, "application/x-amz-json-1.0", "unexpected content-type");
         Assert.assertTrue(getResponseSku.ResponseMetadata.RetryAttempts >= 0, "retry attempts is non-negative");
         validateItem(getResponseSku.Item, imputItem);
 
@@ -141,7 +136,7 @@ public class APITests {
         httpRequest.body(objectMapper.writeValueAsString(postItem));
         Response response = httpRequest.post("");
         int statusCode = response.getStatusCode();
-        Assert.assertEquals(statusCode, 200);
+        Assert.assertEquals(statusCode, 200, "expect 200 result");
         String responseBody = response.getBody().asString();
         Item postResponseItem = objectMapper.readValue(responseBody, Item.class);
         validateItemBase(postResponseItem, postItem);
@@ -153,15 +148,15 @@ public class APITests {
         httpRequest.header("Content-Type", "application/json");
         Response deleteResponse = httpRequest.delete("/" + postItem.sku.toString());
         int statusCode = deleteResponse.getStatusCode();
-        Assert.assertEquals(statusCode, 200);
+        Assert.assertEquals(statusCode, 200, "expect 200 result");
         String deleteResponseBody = deleteResponse.getBody().asString();
-        Assert.assertEquals(deleteResponseBody, "");
+        Assert.assertEquals(deleteResponseBody, "", "expect empty response body");
     }
 
-    private void executeGetUnknownItemTest(String id) {
-        Response getResponse = httpRequest.get("/" + id);
+    private void executeGetUnknownItemTest(String sku) {
+        Response getResponse = httpRequest.get("/" + sku);
         int statusCode = getResponse.getStatusCode();
-        Assert.assertEquals(statusCode, 404);
+        Assert.assertEquals(statusCode, 404, "expect 404 result for a sku that doesn't exist");
     }
 
     private void executeNegativePostTest(ItemBase postItem) throws JsonProcessingException {
@@ -169,18 +164,18 @@ public class APITests {
         httpRequest.body(objectMapper.writeValueAsString(postItem));
         Response response = httpRequest.post("");
         int statusCode = response.getStatusCode();
-        Assert.assertEquals(statusCode, 400);
+        Assert.assertEquals(statusCode, 400, "expect 400 for a malformed POST body");
     }
 
     private void validateItem(Item actualItem, Item expectedItem) {
-        Assert.assertEquals(actualItem.createdAt, expectedItem.createdAt);
-        Assert.assertEquals(actualItem.updatedAt, expectedItem.updatedAt);
+        Assert.assertEquals(actualItem.createdAt, expectedItem.createdAt, "test for 'createdAt' consistency");
+        Assert.assertEquals(actualItem.updatedAt, expectedItem.updatedAt, "test for 'updatedAt' consistency");
         validateItemBase(actualItem, expectedItem);
     }
 
     private void validateItemBase(ItemBase actualItem, ItemBase expectedItem) {
-        Assert.assertEquals(actualItem.description, expectedItem.description);
-        Assert.assertEquals(actualItem.price, expectedItem.price);
-        Assert.assertEquals(actualItem.sku, expectedItem.sku);
+        Assert.assertEquals(actualItem.description, expectedItem.description, "test for 'description' consistency");
+        Assert.assertEquals(actualItem.price, expectedItem.price, "test for 'price' consistency");
+        Assert.assertEquals(actualItem.sku, expectedItem.sku, "test for 'sku' consistency");
     }
 }

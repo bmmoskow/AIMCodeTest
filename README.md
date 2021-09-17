@@ -33,7 +33,8 @@ or deleting the data already there.  The tests involving
 POST and DELETE therefore only operate on data created by
 the user.  For this reason, the test suite contains primarily
 end-to-end scenarios rather than tests that target
-one API alone.
+one API alone.  In a real world scenario, it would be
+better to consult with teammates while making such a choice.
 
 The tests look for seemingly correct results and consistency
 between API calls.

@@ -1,6 +1,6 @@
-package ben.math.distribution.resources;
+package ben.aimcodetest.apitests.resources;
 
-import ben.math.distribution.resources.Models.*;
+import ben.aimcodetest.apitests.resources.Models.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.testng.Assert;

@@ -1,4 +1,4 @@
-package ben.math.distribution.resources.Models;
+package ben.aimcodetest.apitests.resources.Models;
 
 public class ResponseMetadata {
     public String RequestId;

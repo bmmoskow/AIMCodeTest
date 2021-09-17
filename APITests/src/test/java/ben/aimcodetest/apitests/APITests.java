@@ -2,8 +2,7 @@ package ben.aimcodetest.apitests;
 
 import ben.aimcodetest.apitests.Models.Item;
 import ben.aimcodetest.apitests.Models.ItemBase;
-import ben.aimcodetest.apitests.Models.Sku;
-import ben.aimcodetest.apitests.Models.*;
+import ben.aimcodetest.apitests.Models.SkuMetadata;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.testng.Assert;
@@ -71,6 +70,36 @@ public class APITests {
         Assert.assertEquals(statusCode, 404);
     }
 
+    @Test()
+    public void postEmptyDescriptionTest() throws JsonProcessingException {
+        ItemBase postItem = new ItemBase();
+        postItem.description = "";
+        postItem.price = "1.23";
+        postItem.sku = UUID.randomUUID().toString();
+
+        executeNegativePostTest(postItem);
+    }
+
+    @Test()
+    public void postEmptyPriceTest() throws JsonProcessingException {
+        ItemBase postItem = new ItemBase();
+        postItem.description = "post test";
+        postItem.price = "";
+        postItem.sku = UUID.randomUUID().toString();
+
+        executeNegativePostTest(postItem);
+    }
+
+    @Test()
+    public void postEmptySkuTest() throws JsonProcessingException {
+        ItemBase postItem = new ItemBase();
+        postItem.description = "post test";
+        postItem.price = "1.23";
+        postItem.sku = "";
+
+        executeNegativePostTest(postItem);
+    }
+
     private Item[] executeGetAllTest() throws JsonProcessingException {
         Response response = httpRequest.get("");
         int statusCode = response.getStatusCode();
@@ -85,7 +114,7 @@ public class APITests {
         Assert.assertEquals(statusCode, 200);
         String getResponseBody = getResponse.getBody().asString();
         System.out.println(getResponseBody);
-        Sku getResponseSku = objectMapper.readValue(getResponseBody, Sku.class);
+        SkuMetadata getResponseSku = objectMapper.readValue(getResponseBody, SkuMetadata.class);
         validateItem(getResponseSku.Item, imputItem);
 
         return getResponseSku.Item;
@@ -110,15 +139,21 @@ public class APITests {
         int statusCode = deleteResponse.getStatusCode();
         Assert.assertEquals(statusCode, 200);
         String deleteResponseBody = deleteResponse.getBody().asString();
-        System.out.println(deleteResponseBody);
-        ItemBase deleteResponseItem = objectMapper.readValue(deleteResponseBody, ItemBase.class);
-        validateItemBase(deleteResponseItem, postItem);
+        Assert.assertEquals(deleteResponseBody, "");
     }
 
     private void executeGetUnknownItemTest(String id) {
         Response getResponse = httpRequest.get("/" + id);
         int statusCode = getResponse.getStatusCode();
         Assert.assertEquals(statusCode, 404);
+    }
+
+    private void executeNegativePostTest(ItemBase postItem) throws JsonProcessingException {
+        httpRequest.header("Content-Type", "application/json");
+        httpRequest.body(objectMapper.writeValueAsString(postItem));
+        Response response = httpRequest.post("");
+        int statusCode = response.getStatusCode();
+        Assert.assertEquals(statusCode, 400);
     }
 
     private void validateItem(Item actualItem, Item expectedItem) {

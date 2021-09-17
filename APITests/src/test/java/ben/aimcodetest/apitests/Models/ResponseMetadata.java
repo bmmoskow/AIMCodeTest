@@ -1,4 +1,4 @@
-package ben.aimcodetest.apitests.resources.Models;
+package ben.aimcodetest.apitests.Models;
 
 public class ResponseMetadata {
     public String RequestId;

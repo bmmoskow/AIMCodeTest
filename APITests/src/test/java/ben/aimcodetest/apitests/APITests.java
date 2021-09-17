@@ -1,22 +1,18 @@
-package ben.aimcodetest.apitests.resources;
+package ben.aimcodetest.apitests;
 
-import ben.aimcodetest.apitests.resources.Models.*;
+import ben.aimcodetest.apitests.Models.Item;
+import ben.aimcodetest.apitests.Models.ItemBase;
+import ben.aimcodetest.apitests.Models.Sku;
+import ben.aimcodetest.apitests.Models.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import static io.restassured.RestAssured.*;
-import static io.restassured.matcher.RestAssuredMatchers.*;
-import static org.hamcrest.Matchers.*;
-import static io.restassured.module.jsv.JsonSchemaValidator.*;
+
 import io.restassured.specification.*;
 import io.restassured.response.*;
-import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.core.*;
 import java.util.UUID;
 

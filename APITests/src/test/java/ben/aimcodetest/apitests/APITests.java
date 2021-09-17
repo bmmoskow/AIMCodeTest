@@ -46,12 +46,7 @@ public class APITests {
         Item postResponseItem = executePostTest(postItem);
 
         try {
-            Long timeBeforeGet = Instant.now().getEpochSecond();
-            Item getResponseItem = executeGetTest(postResponseItem);
-            Long timeAfterGet = Instant.now().getEpochSecond();
-            Long createdAt = Long.parseLong(getResponseItem.createdAt);
-            Assert.assertTrue(createdAt >= timeBeforeGet && createdAt <= timeAfterGet,
-                    "test that 'createdAt' is in the right time interval");
+            executeGetTestWithTimeChecks(postResponseItem);
 
             ItemBase updatedPostItem = new ItemBase();
 
@@ -60,6 +55,7 @@ public class APITests {
             updatedPostItem.sku = postItem.sku;
 
             Item updatedPostResponseItem = executePostTest(updatedPostItem);
+            executeGetTestWithTimeChecks(updatedPostResponseItem);
         }
         finally {
             executeDeleteTest(postItem);
@@ -129,6 +125,15 @@ public class APITests {
         validateItem(getResponseSku.Item, imputItem);
 
         return getResponseSku.Item;
+    }
+
+    private void executeGetTestWithTimeChecks(Item postResponseItem) throws JsonProcessingException {
+        Long timeBeforeGet = Instant.now().getEpochSecond();
+        Item getResponseItem = executeGetTest(postResponseItem);
+        Long timeAfterGet = Instant.now().getEpochSecond();
+        Long createdAt = Long.parseLong(getResponseItem.createdAt);
+        Assert.assertTrue(createdAt >= timeBeforeGet && createdAt <= timeAfterGet,
+                "test that 'createdAt' is in the right time interval");
     }
 
     private Item executePostTest(ItemBase postItem) throws JsonProcessingException {

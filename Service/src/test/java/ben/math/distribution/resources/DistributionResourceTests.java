@@ -6,6 +6,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import javax.ws.rs.WebApplicationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,20 +17,9 @@ import java.util.Map;
 /**
  * Created by valued on 3/1/18.
  */
-public class APITests {
-
-    @BeforeClass
-    public static void beforeClass() {
-
-    }
-
+public class DistributionResourceTests {
     @Test()
-    public void Test1() {
-        Assert.assertEquals(1,1);
-    }
-
-    @Test(expectedExceptions = AssertionError.class, expectedExceptionsMessageRegExp = "expected \\[2\\] but found \\[1\\]")
-    public void Test2() {
-        Assert.assertEquals(1, 2);
+    public void test1() {
+        Assert.assertEquals(1, 1);
     }
 }

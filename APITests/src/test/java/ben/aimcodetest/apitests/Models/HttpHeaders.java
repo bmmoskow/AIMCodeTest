@@ -10,8 +10,6 @@ public class HttpHeaders {
     @JsonProperty("content-type")
     public String content_type;
 
-    public String content;
-
     @JsonProperty("content-length")
     public String content_length;
 

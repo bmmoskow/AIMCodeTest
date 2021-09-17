@@ -13,6 +13,9 @@ import static io.restassured.RestAssured.*;
 import io.restassured.specification.*;
 import io.restassured.response.*;
 import com.fasterxml.jackson.core.*;
+
+import java.time.Instant;
+import java.util.Date;
 import java.util.UUID;
 
 public class APITests {
@@ -29,7 +32,7 @@ public class APITests {
         Item[] items = executeGetAllTest();
 
         for (Integer i = 0; i < 2; i++) {
-            Item getResponseItem = executeGetTest(items[i]);
+            executeGetTest(items[i]);
         }
     }
 
@@ -43,9 +46,15 @@ public class APITests {
         Item postResponseItem = executePostTest(postItem);
 
         try {
+            Long timeBeforeGet = Instant.now().getEpochSecond();
             Item getResponseItem = executeGetTest(postResponseItem);
+            Long timeAfterGet = Instant.now().getEpochSecond();
+            Long createdAt = Long.parseLong(getResponseItem.createdAt);
+            Assert.assertTrue(createdAt >= timeBeforeGet && createdAt <= timeAfterGet,
+                    "test that 'createdAt' is in the right time interval");
 
             ItemBase updatedPostItem = new ItemBase();
+
             updatedPostItem.description = postItem.description;
             postItem.price = "1.24";
             updatedPostItem.sku = postItem.sku;
@@ -113,8 +122,10 @@ public class APITests {
         int statusCode = getResponse.getStatusCode();
         Assert.assertEquals(statusCode, 200);
         String getResponseBody = getResponse.getBody().asString();
-        System.out.println(getResponseBody);
         SkuMetadata getResponseSku = objectMapper.readValue(getResponseBody, SkuMetadata.class);
+        Assert.assertEquals(getResponseSku.ResponseMetadata.HTTPStatusCode, statusCode);
+        Assert.assertEquals(getResponseSku.ResponseMetadata.HTTPHeaders.content_type, "application/x-amz-json-1.0");
+        Assert.assertTrue(getResponseSku.ResponseMetadata.RetryAttempts >= 0, "retry attempts is non-negative");
         validateItem(getResponseSku.Item, imputItem);
 
         return getResponseSku.Item;

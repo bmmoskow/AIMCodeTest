@@ -1,0 +1,8 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="example suite 1" verbose="1" >
+    <test name="Regression suite 1" >
+        <classes>
+            <class name="ben.math.distribution.resources.APITests"/>
+        </classes>
+    </test>
+</suite>
